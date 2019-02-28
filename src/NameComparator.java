@@ -8,7 +8,5 @@ public class NameComparator implements Comparator<Order> {
         return o1.getName().compareTo(o2.getName());
     }
 
-    public int compareDescending(Order o1, Order o2) {
-        return -(o1.getName().compareTo(o2.getName()));
-    }
+
 }

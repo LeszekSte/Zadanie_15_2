@@ -1,5 +1,5 @@
 public enum OrderType {
-    COMPLEX("Złożone",0),
+    ORDERED("Złożone",0),
     PREPARED_FOR_SHIPMENT("Przygotowane do wysyłki",1),
     IN_TRANSPORT("W transporcie",2),
     COMPLETED("Zrealizowane",3),

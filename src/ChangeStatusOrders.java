@@ -16,7 +16,7 @@ public class ChangeStatusOrders {
             double price = addPrice();
             System.out.println("Czy dane sa poprawne ? (T/N)");
             if (sc.nextLine().toUpperCase().equals("T")) {
-                orders.put(id, new Order(id, name, price, OrderType.COMPLETED));
+                orders.put(id, new Order(id, name, price, OrderType.ORDERED));
                 System.out.println("Zamówienie o indeksie " + id + "   zostało wprowadzone  - " + orders.get(id));
                 ok = true;
             }
