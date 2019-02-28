@@ -22,7 +22,7 @@ public class Main {
 
         System.out.println(entries);
         MenuPrint menuPrint = new MenuPrint();
-     menuPrint.choiceMenu(orders);
+            menuPrint.choiceMenu(orders);
 
 
         //   Collections.sort(orders);

@@ -1,6 +1,7 @@
+import java.util.List;
 import java.util.Objects;
 
-public class Order {
+public class Order  {
     int id;
     String name;
     double price;

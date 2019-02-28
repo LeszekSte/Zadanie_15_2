@@ -9,7 +9,7 @@ public class MenuPrint {
 
 
     public int choiceMenu(Map orders) {
-
+        ChangeStatusOrders chanStOrd = new ChangeStatusOrders();
         int choice = -1;
         Menu m = null;
         Menu[] menus = Menu.values();
@@ -19,6 +19,7 @@ public class MenuPrint {
             System.out.println(Menu.ADD_ORDER.getDescripton() + "         - " + Menu.ADD_ORDER.getChose());
             System.out.println(Menu.CHANGE_STATUS.getDescripton() + "  - " + Menu.CHANGE_STATUS.getChose());
             System.out.println(Menu.END_PROGRAM.getDescripton() + "            - " + Menu.END_PROGRAM.getChose());
+
             try {
                 choice = sc.nextInt();
                 if ((choice >= Menu.SORT.getChose() && choice <= Menu.CHANGE_STATUS.getChose())) {
@@ -37,7 +38,7 @@ public class MenuPrint {
                             choice = -1;
                             break;
                         case ADD_ORDER:
-                            choiceSort(orders);
+                            chanStOrd.addOrder(orders);
                             choice = -1;
                             break;
                     }
@@ -50,6 +51,7 @@ public class MenuPrint {
         } while (!(choice >= Menu.END_PROGRAM.getChose() && choice <= Menu.CHANGE_STATUS.getChose()));
         return choice;
     }
+
 
     private void changeStatusOrder(Map orders) {
         System.out.println("Które chcesz zmienić zmówienie - podaj indeks zamówienia?");
@@ -69,50 +71,52 @@ public class MenuPrint {
 
     private void changeStatus(int index, Map orders) {
         Order order = (Order) orders.get(index);
+        OrderType status = order.getStatus();
+        System.out.println("Staus zamówienia" + " " + order.id + " - " + status);
+        String opis = status.getDescripton();
+        String newStatus = kindOfStatus(status);
+        boolean ok = false;
 
-        System.out.println("Staus zamówienia" + " " + order.id + " - " + order.getStatus());
-        System.out.println("Na jaki status chcesz zmineić zamówienie");
-        // System.out.println("*************** MENU ******************\n");
-
-        //     System.out.println(OrderType.COMPLEX.getDescripton() + "                  - " + OrderType.COMPLEX.getPosition());
-        System.out.println(OrderType.PREPARED_FOR_SHIPMENT.getDescripton() + "  - " + OrderType.PREPARED_FOR_SHIPMENT.getPosition());
-        System.out.println(OrderType.IN_TRANSPORT.getDescripton() + "            - " + OrderType.IN_TRANSPORT.getPosition());
-        System.out.println(OrderType.COMPLETED.getDescripton() + "             - " + OrderType.COMPLETED.getPosition());
-        System.out.println(OrderType.CANCELED.getDescripton() + "                - " + OrderType.CANCELED.getPosition());
-
-
-        // order.setStatus( OrderType.valueOf(order.status.name()));
-
-        OrderType m = null;
-        OrderType[] orderTypes = OrderType.values();
-
-     //   System.out.println(order.name);
-        System.out.println("KKKKKKKKKKKKK");
-
-        try {
-            int odp = sc.nextInt();
-            for (OrderType stat : orderTypes) {
-                if (stat.getPosition() == odp) {
-                    m = stat;
-                    System.out.println(stat);
-                }
-            }
-          //  MxFast opis1 = MxFast.valueOf(odp);
-         //   System.out.println(OrderType.valueOf(m));
-          //  OrderType zz = OrderType.valueOf()
-            orders.remove(index);
-            order = (Order) orders.get(index);
-            orders.put(index, new Order(index, "asa", 2.5,m));
-        } catch (InputMismatchException e) {
-            infoError();
-        } finally {
-            sc.nextLine();
+        if (!status.equals(OrderType.COMPLETED)) {
+            System.out.println("(T/N) -  Czy chcesz znienić status zamówienie z " + opis +
+                    " na " + newStatus);
+             ok = true;
         }
-        System.out.println(orders);;
-        System.out.println("Staus zamówienia" + " " + order.id + " - " + order.getStatus());
+
+        if (status.ordinal() < 2) {
+            System.out.println("A  - " + OrderType.CANCELED.getDescripton() + " Zamówienia ");
+            ok = true;
+        }
+        String odp1= null;
+
+        if (!ok) {
+            odp1 = sc.nextLine().toUpperCase();
+        }
+        if (odp1.equals("A")) {
+            orders.remove(index);
+            System.out.println("Zamówienie skasowane");
+        } else if (odp1.equals("T")) {
+            orders.remove(index);
+            order.setStatus(OrderType.valueOf(newStatus));
+            orders.put(index, order);
+        }
+        if(!odp1.equals("A"))
+        System.out.println(" -----------Staus zamówienia" + " " + order.id + " - " + order.getStatus());
     }
 
-    private void infoError() {
+    private String kindOfStatus(OrderType status) {
+        switch (status) {
+            case COMPLEX:
+                return OrderType.PREPARED_FOR_SHIPMENT.getDescripton();
+            case PREPARED_FOR_SHIPMENT:
+                return OrderType.IN_TRANSPORT.getDescripton();
+            case IN_TRANSPORT:
+                return OrderType.COMPLETED.getDescripton();
+        }
+        return null;
+    }
+
+    public void infoError() {
         System.err.println("Błędna wartość");
     }
 
@@ -144,7 +148,7 @@ public class MenuPrint {
             System.out.println("                                (malejąco)  - 6");
             System.out.println("Powrót                                      - 0");
             choice = sc.nextInt();
-            sc.nextLine();
+            //  sc.nextLine();
         } while (!(choice >= 0 && choice <= 6));
         if (choice != 0) {
             sortOrders(orders, choice);
@@ -153,7 +157,14 @@ public class MenuPrint {
 
 
     private void sortOrders(Map orders, int choice) {
-        Comparator<Order> comparator = null;
+
+        List<Order> list = new ArrayList<>();
+        Set<Integer> indeks = new TreeSet<>(orders.keySet());
+        Order orr;
+        for (Integer indek : indeks) {
+            list.add((Order) orders.get(indek));
+        }
+        Comparator comparator = null;
         switch (choice) {
             case 1:
                 comparator = new NameComparator();
@@ -165,18 +176,19 @@ public class MenuPrint {
                 comparator = new PriceComparator();
                 break;
             case 4:
-                comparator = new NameComparatorDesc();
+                comparator = new PriceComparatorDesc();
                 break;
             case 5:
                 comparator = new StatusComparator();
                 break;
             case 6:
-                comparator = new NameComparatorDesc();
-        }
-        if (comparator != null)
+                comparator = new StatusComparatorDesc();
 
-//            Collections.sort(orders, comparator);
-            System.out.println(orders);
+        }
+        if (comparator != null) {
+            Collections.sort(list, comparator);
+            System.out.println(list);
+        }
     }
 
 
